@@ -1,0 +1,11 @@
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+requests==2.32.3
+sentence-transformers==3.3.1
+chromadb==0.5.23
+# Chroma 0.5.x caps tokenizers at 0.20.3; this Transformers release stays
+# within that same tokenizers range.
+transformers==4.46.3
+torch
+pytest==8.4.2
