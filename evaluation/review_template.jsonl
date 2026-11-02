@@ -1,0 +1,1 @@
+{"question":"replace with a question from logs/interactions.jsonl","classification":"Accurate|Partially Accurate|Incorrect|Not Answerable","notes":"Explain whether the answer is supported by retrieved evidence."}

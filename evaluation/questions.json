@@ -1,0 +1,17 @@
+[
+  {"question": "What is USAspending.gov?", "expected_sources": ["usaspending-api.md", "usaspending-home.md", "usaspending-data-sources.md"]},
+  {"question": "What does the USAspending API provide?", "expected_sources": ["usaspending-api.md", "usaspending-data-sources.md", "usaspending-home.md"]},
+  {"question": "How do I authenticate with the USAspending API?", "expected_sources": ["usaspending-api.md", "usaspending-intro.md", "usaspending-endpoints.md"]},
+  {"question": "What is the base URL for the USAspending API?", "expected_sources": ["usaspending-api.md", "usaspending-intro.md"]},
+  {"question": "What endpoint can search spending by federal account?", "expected_sources": ["usaspending-endpoints.md", "usaspending-federal-account-endpoints.md", "usaspending-data-sources.md"]},
+  {"question": "What spending endpoints support recipient profiles?", "expected_sources": ["usaspending-endpoints.md", "usaspending-recipient-autocomplete.md", "usaspending-data-sources.md"]},
+  {"question": "What endpoint returns spending by congressional district?", "expected_sources": ["usaspending-endpoints.md", "usaspending-category-endpoints.md"]},
+  {"question": "What HTTP method is used by the spending search endpoints?", "expected_sources": ["usaspending-endpoints.md", "usaspending-search-endpoints.md"]},
+  {"question": "How can a user explore federal agencies?", "expected_sources": ["usaspending-agencies.md", "usaspending-home.md", "usaspending-data-sources.md"]},
+  {"question": "Where can I find agency spending information?", "expected_sources": ["usaspending-agencies.md", "usaspending-home.md", "usaspending-data-sources.md"]},
+  {"question": "What information is available on the agency page?", "expected_sources": ["usaspending-agencies.md", "usaspending-home.md", "usaspending-data-sources.md"]},
+  {"question": "How does the API documentation organize its endpoints?", "expected_sources": ["usaspending-intro.md", "usaspending-api.md", "usaspending-endpoints.md"]},
+  {"question": "What is the introductory tutorial for the API?", "expected_sources": ["usaspending-intro.md", "usaspending-api.md"]},
+  {"question": "How should a developer begin using the API documentation?", "expected_sources": ["usaspending-intro.md", "usaspending-api.md"]},
+  {"question": "Where can I learn the basics of using USAspending API endpoints?", "expected_sources": ["usaspending-intro.md", "usaspending-api.md", "usaspending-endpoints.md"]}
+]

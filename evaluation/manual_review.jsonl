@@ -1,0 +1,2 @@
+{"question":"How much did the Department of Education obligate in fiscal year 2024?","classification":"Accurate","notes":"The exact obligations value is appended from the structured USAspending API response and the source URL is shown."}
+{"question":"What spending endpoints are available for federal accounts?","classification":"Partially Accurate","notes":"The relevant endpoint appears in retrieved evidence, but the lightweight generator truncates the explanation. A stronger model or better context window would improve readability."}

@@ -1,0 +1,7 @@
+pytest==8.4.2
+requests
+sentence-transformers
+chromadb
+transformers
+streamlit
+pypdf
