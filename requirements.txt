@@ -5,3 +5,7 @@ chromadb
 transformers
 streamlit
 pypdf
+# Current releases provide Python 3.14-compatible wheels.
+fastapi>=0.120
+uvicorn[standard]>=0.35
+pydantic>=2.12
