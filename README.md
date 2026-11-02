@@ -79,7 +79,7 @@ python -m scripts.query_index "What are federal obligations?"
 
 ## Evaluation
 
-Run the 15-question retrieval evaluation:
+Run the 55-question retrieval evaluation:
 
 ```bash
 python -m scripts.evaluate
@@ -91,7 +91,17 @@ and are deduplicated during ingestion. The current retrieval baseline with
 hybrid search and reranking is:
 
 ```text
-SourceHitRate@3: 15/15 = 100.0%
+SourceHitRate@3: 52/55 = 94.5%
+```
+
+Category results:
+
+```text
+API overview:       9/10  = 90.0%
+Endpoints:         14/15  = 93.3%
+Agency data:         9/10  = 90.0%
+Data methodology:  10/10 = 100.0%
+Treasury:          10/10 = 100.0%
 ```
 
 Detailed evaluation output is written to `evaluation/results.json`. Answer

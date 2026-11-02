@@ -23,6 +23,8 @@ def evaluate(
 ) -> dict:
     rows = []
     hits = 0
+    category_totals: dict[str, int] = {}
+    category_hits: dict[str, int] = {}
     for item in questions:
         candidate_count = 20 if reranker else 3
         results = store.search_hybrid(item["question"], embedder, top_k=candidate_count)
@@ -32,11 +34,23 @@ def evaluate(
         expected_sources = item.get("expected_sources") or [item["expected_source"]]
         hit = bool(set(expected_sources) & set(sources))
         hits += int(hit)
+        category = item.get("category", "uncategorized")
+        category_totals[category] = category_totals.get(category, 0) + 1
+        category_hits[category] = category_hits.get(category, 0) + int(hit)
         rows.append({**item, "retrieved_sources": sources, "hit_at_3": hit})
+    by_category = {
+        category: {
+            "hits_at_3": category_hits.get(category, 0),
+            "question_count": total,
+            "source_hit_rate_at_3": category_hits.get(category, 0) / total,
+        }
+        for category, total in category_totals.items()
+    }
     return {
         "question_count": len(questions),
         "hits_at_3": hits,
         "source_hit_rate_at_3": hits / len(questions) if questions else 0.0,
+        "by_category": by_category,
         "rows": rows,
     }
 
@@ -54,6 +68,9 @@ def main() -> None:
     Path(args.output).write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(f"SourceHitRate@3: {report['hits_at_3']}/{report['question_count']} = "
           f"{report['source_hit_rate_at_3']:.1%}")
+    for category, metrics in report["by_category"].items():
+        print(f"{category}: {metrics['hits_at_3']}/{metrics['question_count']} = "
+              f"{metrics['source_hit_rate_at_3']:.1%}")
     for row in report["rows"]:
         status = "HIT" if row["hit_at_3"] else "MISS"
         print(f"{status}: {row['question']}")

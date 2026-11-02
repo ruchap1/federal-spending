@@ -2,9 +2,10 @@
 
 ## Dataset
 
-The evaluation set contains 15 questions about the indexed USAspending.gov
-documentation. Each question has one labeled expected source file. The labels
-test retrieval, not whether the generated answer is perfect.
+The evaluation set contains 55 questions across API overview, endpoint
+discovery, agency data, data methodology, and Treasury reporting. Each
+question has one or more labeled expected source files. The labels test
+retrieval, not whether the generated answer is perfect.
 
 ## Metric
 
@@ -15,9 +16,19 @@ source appears in the top three retrieved chunks:
 SourceHitRate@3 = questions with expected source in top 3 / total questions
 ```
 
-The labels were created for the original seed corpus. As the corpus expands,
-some questions may have multiple valid official sources; a future evaluation
-revision should support multiple acceptable source labels.
+The evaluation supports multiple acceptable source labels because a question
+may be answered correctly by more than one official document.
+
+Current reranked results:
+
+```text
+Overall:          52/55 = 94.5%
+API overview:      9/10 = 90.0%
+Endpoints:        14/15 = 93.3%
+Agency data:        9/10 = 90.0%
+Data methodology: 10/10 = 100.0%
+Treasury:         10/10 = 100.0%
+```
 
 Run it with:
 
