@@ -86,6 +86,46 @@ class USAspendingClient:
                 )
         return matches
 
+    def funding_subagency_spending(
+        self,
+        agency_name: str,
+        fiscal_year: int,
+        keyword: str | None = None,
+    ) -> AgencySpending:
+        """Aggregate spending for a funding sub-agency and fiscal year."""
+        url = f"{self.base_url}/search/spending_by_category/funding_subagency/"
+        filters: dict[str, Any] = {
+            "time_period": [{
+                "start_date": f"{fiscal_year - 1}-10-01",
+                "end_date": f"{fiscal_year}-09-30",
+            }],
+            "agencies": [{"type": "funding", "tier": "subtier", "name": agency_name}],
+        }
+        if keyword:
+            filters["keywords"] = [keyword]
+        response = requests.post(
+            url,
+            json={
+                "filters": filters,
+                "category": "funding_subagency",
+                "limit": 100,
+                "page": 1,
+                "spending_level": "transactions",
+            },
+            timeout=self.timeout,
+        )
+        response.raise_for_status()
+        rows = response.json().get("results") or []
+        total = sum((_number(row.get("amount")) or 0.0) for row in rows)
+        return AgencySpending(
+            agency_code="subtier-search",
+            fiscal_year=fiscal_year,
+            budgetary_resources=None,
+            obligations=total if rows else None,
+            outlays=None,
+            source_url=url,
+        )
+
 
 def _number(value: Any) -> float | None:
     if value is None:
