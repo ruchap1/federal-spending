@@ -60,5 +60,5 @@ def test_hybrid_search_uses_keyword_signal(tmp_path: Path):
         },
     ]
     store.rebuild(chunks, FakeEmbedder())
-    results = store.search_hybrid("federal account endpoint", FakeEmbedder(), top_k=1)
+    results = store.search_hybrid("federal accounts endpoint", FakeEmbedder(), top_k=1)
     assert results[0].metadata["source"] == "endpoint.md"

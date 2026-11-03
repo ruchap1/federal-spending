@@ -200,7 +200,16 @@ class VectorStore:
 
     @staticmethod
     def _bm25_scores(query: str, documents: list[str]) -> list[float]:
-        tokenize = lambda text: re.findall(r"[a-z0-9]+", text.lower())
+        def normalize_token(token: str) -> str:
+            if len(token) > 4 and token.endswith("ies"):
+                return token[:-3] + "y"
+            if len(token) > 4 and token.endswith("s") and not token.endswith("ss"):
+                return token[:-1]
+            return token
+
+        def tokenize(text: str) -> list[str]:
+            return [normalize_token(token) for token in re.findall(r"[a-z0-9]+", text.lower())]
+
         query_terms = set(tokenize(query))
         tokenized = [tokenize(document) for document in documents]
         lengths = [len(tokens) for tokens in tokenized]

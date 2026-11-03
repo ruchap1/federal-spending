@@ -91,15 +91,15 @@ and are deduplicated during ingestion. The current retrieval baseline with
 hybrid search and reranking is:
 
 ```text
-SourceHitRate@3: 52/55 = 94.5%
+SourceHitRate@3: 55/55 = 100.0%
 ```
 
 Category results:
 
 ```text
-API overview:       9/10  = 90.0%
-Endpoints:         14/15  = 93.3%
-Agency data:         9/10  = 90.0%
+API overview:      10/10  = 100.0%
+Endpoints:         15/15  = 100.0%
+Agency data:       10/10  = 100.0%
 Data methodology:  10/10 = 100.0%
 Treasury:          10/10 = 100.0%
 ```

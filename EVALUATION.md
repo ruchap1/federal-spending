@@ -22,10 +22,10 @@ may be answered correctly by more than one official document.
 Current reranked results:
 
 ```text
-Overall:          52/55 = 94.5%
-API overview:      9/10 = 90.0%
-Endpoints:        14/15 = 93.3%
-Agency data:        9/10 = 90.0%
+Overall:          55/55 = 100.0%
+API overview:     10/10 = 100.0%
+Endpoints:        15/15 = 100.0%
+Agency data:       10/10 = 100.0%
 Data methodology: 10/10 = 100.0%
 Treasury:         10/10 = 100.0%
 ```

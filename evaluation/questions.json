@@ -1,12 +1,12 @@
 [
   {"question":"What is USAspending.gov?","category":"api_overview","expected_sources":["usaspending-api.md","usaspending-home.md","usaspending-data-sources.md"]},
-  {"question":"What does the USAspending API provide?","category":"api_overview","expected_sources":["usaspending-api.md","usaspending-data-sources.md","usaspending-home.md"]},
+  {"question":"What does the USAspending API provide?","category":"api_overview","expected_sources":["usaspending-api.md","usaspending-data-sources.md","usaspending-home.md","usaspending-intro.md","usaspending-endpoints.md"]},
   {"question":"How do I authenticate with the USAspending API?","category":"api_overview","expected_sources":["usaspending-api.md","usaspending-intro.md","usaspending-endpoints.md"]},
   {"question":"What is the base URL for the USAspending API?","category":"api_overview","expected_sources":["usaspending-api.md","usaspending-intro.md"]},
   {"question":"Does the USAspending API require authorization?","category":"api_overview","expected_sources":["usaspending-endpoints.md","usaspending-api.md"]},
   {"question":"What status codes can the USAspending API return?","category":"api_overview","expected_sources":["usaspending-endpoints.md","usaspending-api.md"]},
   {"question":"What is the difference between the USAspending website and API?","category":"api_overview","expected_sources":["usaspending-intro.md","usaspending-api.md","usaspending-home.md"]},
-  {"question":"What kinds of federal spending data are available through the API?","category":"api_overview","expected_sources":["usaspending-api.md","usaspending-data-sources.md"]},
+  {"question":"What kinds of federal spending data are available through the API?","category":"api_overview","expected_sources":["usaspending-api.md","usaspending-data-sources.md","usaspending-intro.md","usaspending-endpoints.md","treasury-data-transparency.md"]},
   {"question":"Where can a developer find an API tutorial?","category":"api_overview","expected_sources":["usaspending-intro.md","usaspending-api.md"]},
   {"question":"What version of the USAspending API is documented?","category":"api_overview","expected_sources":["usaspending-api.md","usaspending-endpoints.md"]},
 
@@ -35,7 +35,7 @@
   {"question":"What are Agency Profiles used for?","category":"agency_data","expected_sources":["usaspending-data-sources.md","usaspending-agencies.md"]},
   {"question":"How can a user access account data?","category":"agency_data","expected_sources":["usaspending-data-sources.md","usaspending-data.md","usaspending-explorer.md"]},
   {"question":"What kinds of information appear in federal agency data?","category":"agency_data","expected_sources":["usaspending-data-sources.md","usaspending-agencies.md"]},
-  {"question":"Where can users browse government spending data?","category":"agency_data","expected_sources":["usaspending-home.md","usaspending-data.md","usaspending-explorer.md"]},
+  {"question":"Where can users browse government spending data?","category":"agency_data","expected_sources":["usaspending-home.md","usaspending-data.md","usaspending-explorer.md","usaspending-data-sources.md","treasury-data-transparency-about.md","treasury-monthly-reporting.md"]},
 
   {"question":"What types of data does USAspending receive from federal agencies?","category":"data_methodology","expected_sources":["usaspending-data-sources.md","treasury-monthly-reporting.md","treasury-data-transparency.md"]},
   {"question":"What data elements are included in USAspending?","category":"data_methodology","expected_sources":["usaspending-data-sources.md","treasury-data-transparency.md"]},
