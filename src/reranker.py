@@ -15,7 +15,7 @@ DEFAULT_RERANKER = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 class Reranker:
     def __init__(self, model_name: str = DEFAULT_RERANKER) -> None:
         self.model_name = model_name
-        self.model = CrossEncoder(model_name)
+        self.model = CrossEncoder(model_name, model_kwargs={"attn_implementation": "eager"})
 
     def rerank(
         self,
@@ -28,6 +28,10 @@ class Reranker:
         scores = self.model.predict([(query, result.text) for result in candidates])
         ranked: list[SearchResult] = []
         for result, raw_score in zip(candidates, scores):
+            if not math.isfinite(float(raw_score)):
+                metadata = dict(result.metadata) | {"reranker_status": "nonfinite_score_fallback"}
+                ranked.append(SearchResult(result.id, result.text, metadata, result.distance))
+                continue
             probability = 1.0 / (1.0 + math.exp(-float(raw_score)))
             metadata = dict(result.metadata)
             metadata["reranker_score"] = probability

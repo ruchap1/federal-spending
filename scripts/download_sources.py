@@ -5,6 +5,8 @@ from __future__ import annotations
 import argparse
 import html
 import io
+import json
+from datetime import datetime, timezone
 import re
 from pathlib import Path
 from urllib.error import HTTPError, URLError
@@ -14,6 +16,13 @@ from pypdf import PdfReader
 
 
 SEED_SOURCES = {
+    "usagov-budget-process.md": ("https://www.usa.gov/federal-budget-process", "html"),
+    "treasury-budget-faq.md": ("https://home.treasury.gov/subfooter/faqs/accounting-budget-faqs", "html"),
+    "treasury-financial-position.md": ("https://fiscal.treasury.gov/accounting/us-financial-report/government-financial-position", "html"),
+    "treasury-nation-numbers.md": ("https://fiscal.treasury.gov/accounting/us-financial-report/nation-by-numbers", "html"),
+    "gsa-enacted-budgets.md": ("https://www.gsa.gov/about-gsa/newsroom/budget-and-performance/enacted-federal-budgets", "html"),
+    "dot-budget-2025.md": ("https://www.transportation.gov/mission/budget/fiscal-year-2025-budget-estimates", "html"),
+    "omb-budget-2025.md": ("https://www.govinfo.gov/content/pkg/BUDGET-2025-BUD/pdf/BUDGET-2025-BUD.pdf", "pdf"),
     "usaspending-api.md": ("https://api.usaspending.gov/docs/", "html"),
     "usaspending-intro.md": ("https://api.usaspending.gov/docs/intro-tutorial", "html"),
     "usaspending-endpoints.md": ("https://api.usaspending.gov/docs/endpoints", "html"),
@@ -64,6 +73,7 @@ SEED_SOURCES = {
 
 
 def html_to_text(raw: str) -> str:
+    raw = re.sub(r"<!--.*?-->", " ", raw, flags=re.S)
     raw = re.sub(r"<script\b[^>]*>.*?</script>", " ", raw, flags=re.I | re.S)
     raw = re.sub(r"<style\b[^>]*>.*?</style>", " ", raw, flags=re.I | re.S)
     raw = re.sub(r"<(nav|footer|header|aside|form)\b[^>]*>.*?</\1>", " ", raw, flags=re.I | re.S)
@@ -84,17 +94,20 @@ def html_to_text(raw: str) -> str:
 
 def pdf_to_text(raw: bytes) -> str:
     reader = PdfReader(io.BytesIO(raw))
-    pages = [page.extract_text() or "" for page in reader.pages]
+    pages = [f"## PDF page {index}\n\n{page.extract_text() or ''}" for index, page in enumerate(reader.pages, 1)]
     return "\n\n".join(pages).strip()
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-dir", type=Path, default=Path("data/raw"))
+    parser.add_argument("--only", nargs="*", help="Download selected manifest filenames")
     args = parser.parse_args()
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
     for filename, (url, source_type) in SEED_SOURCES.items():
+        if args.only and filename not in args.only:
+            continue
         request = Request(url, headers={"User-Agent": "federal-spending-rag-learning-project"})
         try:
             with urlopen(request, timeout=30) as response:
@@ -110,6 +123,10 @@ def main() -> None:
         (args.output_dir / filename).write_text(
             f"# {filename}\n\nSource URL: {url}\n\n{text}\n", encoding="utf-8"
         )
+        (args.output_dir / (filename + ".json")).write_text(json.dumps({
+            "url": url, "publisher": url.split('/')[2], "document_type": source_type,
+            "retrieved_at": datetime.now(timezone.utc).isoformat(),
+        }, indent=2))
         print(f"Downloaded {url}")
 
 

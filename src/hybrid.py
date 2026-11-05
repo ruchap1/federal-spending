@@ -9,17 +9,21 @@ from typing import Any
 from src.embeddings import Embedder
 from src.generator import LocalGenerator
 from src.logging_utils import log_interaction
-from src.prompts import build_document_prompt, build_numeric_prompt
+from src.prompts import build_document_prompt
 from src.reranker import Reranker
 from src.spending_api import AgencyMatch, AgencySpending, USAspendingClient
 from src.vector_store import SearchResult, VectorStore
+from src.validation import ABSTENTION, validate_answer, attribute_answer
+from src.evidence import select_evidence, evidence_answer
 
 
-NUMERIC_TERMS = re.compile(r"\b(how much|spend|spending|obligat|outlay|budgetary|dollar|funding)\b", re.I)
+NUMERIC_TERMS = re.compile(r"\b(how much|spend\w*|obligat\w*|outlay\w*|budgetary|dollars?|funding)\b", re.I)
 
 
 def is_numeric_question(question: str) -> bool:
     """Return whether a question appears to ask for a spending quantity."""
+    if re.search(r"\b(mean|definition|define)\b", question, re.I):
+        return False
     return bool(NUMERIC_TERMS.search(question))
 
 
@@ -58,34 +62,51 @@ class HybridPipeline:
         if not question.strip():
             raise ValueError("question must not be empty")
 
-        if is_numeric_question(question) and agency_query.strip() and fiscal_year:
+        years = sorted(set(int(year) for year in re.findall(r"\b(?:19|20)\d{2}\b", question)))
+        numeric = bool(re.search(r"how much|compare|change|difference|total|amount", question, re.I)) and is_numeric_question(question)
+        if numeric:
+            if not agency_query.strip() or (not years and fiscal_year is None):
+                answer = "Please provide an agency name and fiscal year for an exact spending lookup."
+                log_interaction(log_path, question, "clarification", answer)
+                return HybridResponse(question, "clarification", answer, [])
+            if len(years) > 2:
+                return HybridResponse(question, "clarification", "Please compare at most two fiscal years.", [])
             matches = self.spending_client.find_funding_agencies(agency_query)
-            if matches:
-                agency = matches[0]
-                spending = self.spending_client.agency_budgetary_resources(
-                    agency.agency_code, fiscal_year
-                )
-                data = {
-                    "budgetary_resources": spending.budgetary_resources,
-                    "obligations": spending.obligations,
-                    "outlays": spending.outlays,
-                    "source_url": spending.source_url,
-                }
-                prompt = build_numeric_prompt(question, agency.name, fiscal_year, data)
-                answer = self.generator.generate(prompt)
-                answer = self._numeric_answer(answer, agency, spending)
-                log_interaction(log_path, question, "structured_api", answer, structured_data=data)
-                return HybridResponse(question, "structured_api", answer, [], agency, spending)
+            exact = [a for a in matches if agency_query.strip().lower() in {a.name.lower(), a.abbreviation.lower()}]
+            if len(exact) == 1:
+                matches = exact
+            if len(matches) != 1:
+                return HybridResponse(question, "clarification", "Please specify one unambiguous top-level agency name.", [])
+            agency = matches[0]
+            values = [self.spending_client.agency_budgetary_resources(agency.agency_code, year)
+                      for year in (years or [fiscal_year])]
+            answer = "\n\n".join(self._numeric_answer("", agency, row) for row in values)
+            if len(values) == 2:
+                for metric in ("budgetary_resources", "obligations", "outlays"):
+                    before, after = (getattr(row, metric) for row in values)
+                    if before is not None and after is not None:
+                        change = after - before
+                        percent = f" ({change / before * 100:+.2f}%)" if before else " (percentage unavailable: zero baseline)"
+                        answer += f"\n- {metric.replace('_', ' ').title()} change, FY {values[0].fiscal_year} to FY {values[1].fiscal_year}: ${change:+,.2f}{percent}"
+            log_interaction(log_path, question, "structured_api", answer,
+                            structured_data={"agency": agency.name, "years": [row.__dict__ for row in values]})
+            return HybridResponse(question, "structured_api", answer, [], agency, values[-1])
 
-        candidate_count = 20 if self.reranker else 3
+        candidate_count = 20
         results = self.store.search_hybrid(question, self.embedder, top_k=candidate_count)
         if self.reranker:
-            results = self.reranker.rerank(question, results, top_k=3)
-        answer = self.generator.generate(build_document_prompt(question, results))
-        if not answer or len(answer.strip()) < 20:
-            answer = f"The retrieved evidence is:\n\n{results[0].text[:700]} [1]" if results else "Not answerable from the indexed evidence."
-        elif not re.search(r"\[\d+\]", answer):
-            answer = f"{answer.rstrip()} [1]"
+            results = self.reranker.rerank(question, results, top_k=10)
+        results = select_evidence(question, results)
+        if not results:
+            log_interaction(log_path, question, "document_rag", ABSTENTION)
+            return HybridResponse(question, "document_rag", ABSTENTION, [])
+        answer = self.generator.answer_documents(question, results)
+        if re.search(r"insufficient evidence|not enough (?:evidence|information)|cannot (?:answer|determine)", answer, re.I):
+            answer = ABSTENTION
+        else:
+            answer = attribute_answer(answer, results)
+        if answer == ABSTENTION or validate_answer(answer, results):
+            answer = evidence_answer(results)
         log_interaction(log_path, question, "document_rag", answer, results=results)
         return HybridResponse(question, "document_rag", answer, results)
 

@@ -22,10 +22,10 @@ may be answered correctly by more than one official document.
 Current reranked results:
 
 ```text
-Overall:          55/55 = 100.0%
+Overall:          53/55 = 96.4%
 API overview:     10/10 = 100.0%
-Endpoints:        15/15 = 100.0%
-Agency data:       10/10 = 100.0%
+Endpoints:        14/15 = 93.3%
+Agency data:        9/10 = 90.0%
 Data methodology: 10/10 = 100.0%
 Treasury:         10/10 = 100.0%
 ```
@@ -40,6 +40,11 @@ The script writes detailed rows to `evaluation/results.json`. The results file
 is intentionally ignored by Git because it is generated output.
 
 ## Answer-quality review
+
+Use `python -m scripts.evaluate_answers --per-category 2` to generate a review
+packet containing answers and full retrieved evidence. The initial sample
+found 11 evidence-copy fallbacks in 12 responses and failed both unanswerable
+controls. See [ANSWER_QUALITY.md](evaluation/ANSWER_QUALITY.md) for details.
 
 Retrieval success does not guarantee a correct answer. Review interactions in
 `logs/interactions.jsonl` and classify each answer as:
@@ -57,7 +62,7 @@ end-to-end Day 3 checks.
 
 ## Limitations and improvements
 
-- The current corpus contains 11 unique document bodies and 147 chunks, with
+- The current corpus contains 18 unique document bodies and 1,497 chunks, with
   most content still concentrated in USAspending documentation. Several
   endpoint URLs resolve to duplicate documentation and are deduplicated.
 - Some public pages reject automated downloads with HTTP 403.

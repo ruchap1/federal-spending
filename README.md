@@ -63,6 +63,10 @@ Hugging Face and caches them locally.
 
 ## Run the application
 
+Broad questions such as “How does the federal budget work?” are supported.
+When the model cannot synthesize a reliable response, the app shows relevant
+cited source excerpts. See [broad-question evaluation](evaluation/BROAD_QUESTIONS.md).
+
 ```bash
 python -m streamlit run app.py
 ```
@@ -85,21 +89,21 @@ Run the 55-question retrieval evaluation:
 python -m scripts.evaluate
 ```
 
-The current corpus contains 11 unique document bodies and 147 chunks. Several
+The current corpus contains 18 unique document bodies and 1,497 chunks. Several
 endpoint URLs intentionally resolve to the same canonical documentation page
 and are deduplicated during ingestion. The current retrieval baseline with
 hybrid search and reranking is:
 
 ```text
-SourceHitRate@3: 55/55 = 100.0%
+SourceHitRate@3: 53/55 = 96.4%
 ```
 
 Category results:
 
 ```text
 API overview:      10/10  = 100.0%
-Endpoints:         15/15  = 100.0%
-Agency data:       10/10  = 100.0%
+Endpoints:         14/15  = 93.3%
+Agency data:        9/10  = 90.0%
 Data methodology:  10/10 = 100.0%
 Treasury:          10/10 = 100.0%
 ```
@@ -115,6 +119,16 @@ python -m scripts.evaluate --rerank
 ```
 
 ## Project structure
+
+Answer generation has a separate evaluation runner:
+
+```bash
+python -m scripts.evaluate_answers --per-category 2
+```
+
+It saves answers, actual retrieved passages, citation checks, and review fields.
+See [answer quality results](evaluation/ANSWER_QUALITY.md) for the initial
+12-question diagnostic sample and review procedure.
 
 ```text
 app.py                         Streamlit application
@@ -158,7 +172,7 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for the AWS EC2/ECR deployment path.
   documentation and Treasury financial pages.
 - Some CBO and GAO sources reject automated downloads with HTTP 403 in the
   current environment.
-- The local `google/flan-t5-small` model is lightweight and may produce less
+- The local `google/flan-t5-base` model is lightweight and may produce less
   fluent answers than larger instruction-tuned models.
 - SourceHitRate@3 measures retrieval quality, not complete answer correctness.
 - ChromaDB is currently local and is not configured as a production managed

@@ -49,3 +49,31 @@ def build_numeric_prompt(question: str, agency_name: str, fiscal_year: int, data
         "Answer concisely and label the source as [USAspending API]."
     )
 
+
+def build_budgeted_prompt(question, results, tokenizer, max_tokens=512):
+    prefix = (
+        "Answer the question using the context below. For broad questions, give a brief overview. "
+        "If only part can be answered, explain that part. Write a direct answer. "
+        "If the context does not answer the question, say 'Insufficient evidence'.\n"
+        f"Question: {question}\nContext:\n"
+    )
+    suffix = "\nAnswer:"
+    count = lambda text: len(tokenizer.encode(text, add_special_tokens=True))
+    if count(prefix + suffix) > max_tokens - 24:
+        raise ValueError("Question is too long for the model's context window.")
+    blocks = []
+    remaining = max_tokens - count(prefix + suffix) - 12
+    for rank, result in enumerate(results, 1):
+        allowance = remaining // max(1, len(results) - rank + 1)
+        label = f"Evidence [{rank}]: "
+        tokens = tokenizer.encode(result.text, add_special_tokens=False)
+        content = tokenizer.decode(tokens[:max(0, allowance - count(label) - 3)], skip_special_tokens=True)
+        if not content.strip():
+            break
+        block = label + content + "\n"
+        if count(prefix + ''.join(blocks) + block + suffix) > max_tokens:
+            break
+        blocks.append(block)
+        remaining -= count(block)
+    return prefix + ''.join(blocks) + suffix
+

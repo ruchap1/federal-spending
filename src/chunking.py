@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import html
 import hashlib
+import json
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -80,7 +81,10 @@ def load_documents(directory: str | Path) -> list[Document]:
                 source=str(path),
                 title=path.stem,
                 text=text,
-                metadata={"file_type": path.suffix.lower()},
+                metadata={"file_type": path.suffix.lower(),
+                          **({"url": match.group(1)} if (match := re.search(r"^Source URL: (\S+)", text, re.M)) else {}),
+                          **(json.loads(path.with_suffix(path.suffix + ".json").read_text())
+                             if path.with_suffix(path.suffix + ".json").exists() else {})},
             )
             if fingerprint not in seen_content:
                 seen_content[fingerprint] = len(documents)
@@ -103,12 +107,17 @@ def _fixed_split(text: str, max_chars: int, overlap: int) -> list[str]:
     start = 0
     while start < len(text):
         end = min(start + max_chars, len(text))
+        if end < len(text):
+            boundary = max(text.rfind("\n", start + max_chars // 2, end),
+                           text.rfind(" ", start + max_chars // 2, end))
+            if boundary > start:
+                end = boundary
         piece = text[start:end].strip()
         if piece:
             pieces.append(piece)
         if end == len(text):
             break
-        start = end - overlap
+        start = max(start + 1, end - overlap)
     return pieces
 
 
@@ -139,11 +148,13 @@ def chunk_document(document: Document, max_chars: int = 1200, overlap: int = 150
         for piece in pieces:
             chunks.append(
                 Chunk(
-                    text=piece,
+                    text=piece if piece.startswith(section + "\n") else f"{section}\n{piece}",
                     source=document.source,
                     section=section,
                     chunk_index=len(chunks),
-                    metadata=document.metadata | {"title": document.title},
+                    metadata=document.metadata | {"title": document.title} | (
+                        {"page": int(section.removeprefix("PDF page "))}
+                        if re.fullmatch(r"PDF page \d+", section) else {}),
                 )
             )
     return chunks

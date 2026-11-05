@@ -1,0 +1,8 @@
+[
+  {"question":"Tell me about government spending.","category":"broad","expected_behavior":"Provide a sourced overview of federal spending."},
+  {"question":"How does the federal budget work?","category":"broad","expected_behavior":"Explain the budget process with relevant evidence."},
+  {"question":"Help me understand obligations and outlays.","category":"broad","expected_behavior":"Explain commitments versus actual payments."},
+  {"question":"What can I learn from USAspending?","category":"broad","expected_behavior":"Describe public spending data and ways to explore it."},
+  {"question":"Where does federal money go?","category":"broad","expected_behavior":"Offer a sourced overview; avoid invented current amounts."},
+  {"question":"Explain federal spending transparency.","category":"broad","expected_behavior":"Explain public spending reporting and access to data."}
+]
